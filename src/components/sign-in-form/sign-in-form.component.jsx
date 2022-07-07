@@ -1,20 +1,20 @@
 import {
     signInWithGooglePopup,
     createUserDocumentFromAuth,
+    SignInAuthUserWithEmailAndPassword,
  } from '../../utils/firebase/firebase.utils';
 
+import './sing-in-form.styles.scss';
+import FormInput from '../form-input/form-input.component';
+import Button from '../button/button.component';
 import { useState } from 'react';
-import SingUpForm from '../../components/sing-up-form/sing-up-form.component';
-import Button from '../../components/button/button.component';
-import FormInput from '../../components/form-input/form-input.component';
-import './sing-in.styles.scss'
 
 const defaultFormFields = {
     email: '',
     password: '',
 }
 
-const SignIn = () => {
+const SingInForm = () => {
     const [formFields, setFormFields] = useState(defaultFormFields);
     const { email, password} = formFields;
 
@@ -22,32 +22,26 @@ const SignIn = () => {
         setFormFields(defaultFormFields);
     };
 
-    /* const handleSubmit = async (event) =>{
+    const handleSubmit = async (event) =>{
         event.preventDefault();
     
-        if (password !== confirmPassword) {
-            alert('Passwords do not match');
-            return;
-        }
-    
         try{
-            const {user} = await createAuthUserWithEmailAndPassword(email, password);
-            console.log(user);
-    
-            await createUserDocumentFromAuth(user,{displayName});
+            await SignInAuthUserWithEmailAndPassword(email, password);
             resetFormFields();
         }catch(error) {
-            if (error.code === 'auth/email-already-in-use') {
-                alert('Cannot create user, email already in use')
-            }else {
-                console.log('user creation encoutered an error', error);
+            switch (error.code) {
+                case 'auth/wrong-password':
+                    alert('Incorrect password for email');
+                    break;
+                case 'auth/user-not-found':
+                    alert('Do not exist a user with that email');
+                    break;
+
+                default:
+                    console.log(error);
+                    break;
             }
         }
-       }; */
-
-    const logGoogleUser = async () => {
-        const {user} = await signInWithGooglePopup();
-        const userDocRef = await createUserDocumentFromAuth(user);
     };
 
     const handleChange = (event) => {
@@ -56,12 +50,16 @@ const SignIn = () => {
         setFormFields({...formFields,[name]: value})
     };
 
-    
+    const signInWithGoogle = async () => {
+        const {user} = await signInWithGooglePopup();
+        await createUserDocumentFromAuth(user);
+    };
+
     return(
         <div className='sign-in-container'>
             <h2>Already have an account?</h2>
             <span> Sign in with your email and password</span>
-            <form>
+            <form onSubmit={handleSubmit}>
                 <FormInput
                     label={'Email'}
                     type='email'
@@ -78,16 +76,17 @@ const SignIn = () => {
                     name='password'
                     value={password}
                 />
+                <div className='buttons-container'>
+                    <Button type='submit'>
+                    Sign in
+                    </Button>
+                    <Button buttonType='google' onClick={signInWithGoogle} >
+                    Google sign in 
+                    </Button>
+                </div>
             </form>
-            <Button type='submit'>
-                Sign in
-            </Button>
-            <Button buttonType='google' onClick={logGoogleUser} >
-                Sign in with Google
-            </Button>
-            <SingUpForm/>
         </div>
-    );
-};
+    )
+}
 
-export default SignIn;
+export default SingInForm;
