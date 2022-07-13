@@ -1,6 +1,5 @@
 import {
     signInWithGooglePopup,
-    createUserDocumentFromAuth,
     SignInAuthUserWithEmailAndPassword,
  } from '../../utils/firebase/firebase.utils';
 
@@ -26,8 +25,9 @@ const SingInForm = () => {
         event.preventDefault();
     
         try{
-            await SignInAuthUserWithEmailAndPassword(email, password);
+            const {user} = await SignInAuthUserWithEmailAndPassword(email, password);
             resetFormFields();
+
         }catch(error) {
             switch (error.code) {
                 case 'auth/wrong-password':
@@ -51,8 +51,7 @@ const SingInForm = () => {
     };
 
     const signInWithGoogle = async () => {
-        const {user} = await signInWithGooglePopup();
-        await createUserDocumentFromAuth(user);
+        await signInWithGooglePopup();
     };
 
     return(
