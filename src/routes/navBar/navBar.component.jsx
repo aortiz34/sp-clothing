@@ -14,7 +14,7 @@ import './navBat.styles.scss';
 
 const NavBar = () => {
     const {currentUser} = useContext(UserContext);
-    const { cartDropdownState, setCartDropdownState } = useContext(CartContext);
+    const { cartDropdownState } = useContext(CartContext);
     return (
         <Fragment>
             <div className='navBar'>
